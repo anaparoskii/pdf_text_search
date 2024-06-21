@@ -18,12 +18,29 @@ def search_result(result):
     return sorted_pages
 
 
-def get_paragraph(page, words):
-    paragraph = page.split('\n')
-    paragraph_value = ''
-    for word in words:
+def get_paragraph(page, words, code):
+    if code == 1:
+        paragraph = page.split('\n')
+        paragraph_value = ''
+        for word in words:
+            for i in range(len(paragraph)//2, len(paragraph)):
+                if word.lower() in paragraph[i].lower():
+                    if paragraph_value == '':
+                        paragraph_value = paragraph[i]
+                    elif paragraph_value == paragraph[i]:
+                        continue
+                    else:
+                        paragraph_value = paragraph_value + '\n' + paragraph[i]
+                        break
+        for word in words:
+            if paragraph_value != '':
+                paragraph_value = paragraph_value.replace(word, f"{Color.PURPLE}{word}{Color.RESET}")
+        return paragraph_value
+    else:
+        paragraph = page.split('\n')
+        paragraph_value = ''
         for i in range(len(paragraph)//2, len(paragraph)):
-            if word.lower() in paragraph[i].lower():
+            if words in paragraph[i]:
                 if paragraph_value == '':
                     paragraph_value = paragraph[i]
                 elif paragraph_value == paragraph[i]:
@@ -31,7 +48,6 @@ def get_paragraph(page, words):
                 else:
                     paragraph_value = paragraph_value + '\n' + paragraph[i]
                     break
-    for word in words:
         if paragraph_value != '':
-            paragraph_value = paragraph_value.replace(word, f"{Color.PURPLE}{word}{Color.RESET}")
-    return paragraph_value
+            paragraph_value = paragraph_value.replace(words, f"{Color.PURPLE}{words}{Color.RESET}")
+        return paragraph_value

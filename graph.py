@@ -31,9 +31,11 @@ class Graph(object):
 
     def search_phrase(self, phrase, hashmap):
         result = []
-        for key, value in hashmap.items():
-            if phrase in value:
-                result.append(key)
+        for page, text in hashmap.items():
+            lines = text.split("\n")
+            for line in lines:
+                if phrase in line:
+                    result.append(page)
         return result
 
     def build(self, dictionary):

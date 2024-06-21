@@ -21,7 +21,7 @@ def main():
             words = value.split()
             if value[0] == "'" or value[0] == '"':
                 phrase = value[1:-1]
-                result = graph.search_phrase(phrase)
+                result = graph.search_phrase(phrase, hashmap)
             else:
                 result = graph.search_words(words)
             print("Search results:\n")
@@ -30,9 +30,9 @@ def main():
                 i = 1
                 for page, count in sorted_pages:
                     if value[0] == "'" or value[0] == '"':
-                        paragraph = get_paragraph(hashmap[page], value[1:-1])
+                        paragraph = get_paragraph(hashmap[page], value[1:-1], 0)
                     else:
-                        paragraph = get_paragraph(hashmap[page], words)
+                        paragraph = get_paragraph(hashmap[page], words, 1)
                     print(f"{i}: Page {page} - {count} occurrences\n{paragraph}\n")
                     i += 1
             else:
