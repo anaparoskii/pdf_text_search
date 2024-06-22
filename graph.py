@@ -1,3 +1,6 @@
+import pickle
+
+
 class Graph(object):
     def __init__(self):
         self.data = {}
@@ -29,7 +32,8 @@ class Graph(object):
             result.append(self.search_word(word))
         return result
 
-    def search_phrase(self, phrase, hashmap):
+    @staticmethod
+    def search_phrase(phrase, hashmap):
         result = []
         for page, text in hashmap.items():
             lines = text.split("\n")
@@ -44,3 +48,12 @@ class Graph(object):
             for word in words:
                 self.add_edge(word.lower(), page_number)
         return self
+
+    def serialize(self, file_path):
+        with open(file_path, 'wb') as file:
+            pickle.dump(self, file)
+
+    @staticmethod
+    def deserialize(file_path):
+        with open(file_path, 'rb') as file:
+            return pickle.load(file)

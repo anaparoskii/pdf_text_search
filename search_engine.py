@@ -4,11 +4,17 @@ from color import Color
 def rank(result):
     ranked_pages = {}
     for page in result:
-        for i in page:
-            if i in list(ranked_pages.keys()):
-                ranked_pages[i] += 1
+        if isinstance(page, int):
+            if page in list(ranked_pages.keys()):
+                ranked_pages[page] += 1
             else:
-                ranked_pages[i] = 1
+                ranked_pages[page] = 1
+        else:
+            for i in page:
+                if i in list(ranked_pages.keys()):
+                    ranked_pages[i] += 1
+                else:
+                    ranked_pages[i] = 1
     return ranked_pages
 
 
@@ -22,8 +28,9 @@ def get_paragraph(page, words, code):
     if code == 1:
         paragraph = page.split('\n')
         paragraph_value = ''
+        search_range = len(paragraph) // 2
         for word in words:
-            for i in range(len(paragraph)//2, len(paragraph)):
+            for i in range(search_range, len(paragraph)):
                 if word.lower() in paragraph[i].lower():
                     if paragraph_value == '':
                         paragraph_value = paragraph[i]
@@ -39,7 +46,8 @@ def get_paragraph(page, words, code):
     else:
         paragraph = page.split('\n')
         paragraph_value = ''
-        for i in range(len(paragraph)//2, len(paragraph)):
+        search_range = len(paragraph) // 2
+        for i in range(search_range, len(paragraph)):
             if words in paragraph[i]:
                 if paragraph_value == '':
                     paragraph_value = paragraph[i]
