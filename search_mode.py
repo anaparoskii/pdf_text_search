@@ -1,33 +1,17 @@
-from search_engine import search_result, get_paragraph
+from search_engine import get_paragraph, search_phrase, search_words, rank
 
 
-def words_search(graph, words, hashmap):
+def words_search(trie, words, hashmap, graph):
     print("Search results:\n")
-    result = graph.search_words(words)
-    if result:
-        sorted_pages = search_result(result)
-        max_i = 50
-        i = 1
-        for page, count in sorted_pages:
-            if i > max_i:
-                choice = input("Press Enter to continue or X to terminate... ")
-                if choice.lower() == "x":
-                    break
-                else:
-                    max_i += 50
-            paragraph = get_paragraph(hashmap[page], words, 1)
-            print(f"{i}: Page {page} - {count} occurrences\n{paragraph}\n")
-            i += 1
-    else:
-        print("No results found")
-
-
-def phrase_search(graph, phrase, hashmap):
-    print("Search results:\n")
-    result = graph.search_phrase(phrase, hashmap)
+    result = search_words(trie, words, graph)
+    print(f"Results found: {len(result)}")
     if len(result) > 0:
-        sorted_pages = search_result(result)
-        max_i = 50
+        if isinstance(result[0], tuple):
+            sorted_pages = result
+        else:
+            sorted_pages = rank(result, graph)
+
+        max_i = 25
         i = 1
         for page, count in sorted_pages:
             if i > max_i:
@@ -35,20 +19,21 @@ def phrase_search(graph, phrase, hashmap):
                 if choice.lower() == "x":
                     break
                 else:
-                    max_i += 50
-            paragraph = get_paragraph(hashmap[page], phrase, 0)
+                    max_i += 25
+            paragraph = get_paragraph(hashmap[page], words, 1)
+            count = round(count)
             print(f"{i}: Page {page} - {count} occurrences\n{paragraph}\n")
             i += 1
     else:
         print("No results found")
 
 
-def binary_search(graph, words, hashmap):
+def phrase_search(phrase, hashmap, graph):
     print("Search results:\n")
-    result = graph.search_words(words)
-    if result:
-        sorted_pages = {}
-        max_i = 50
+    result = search_phrase(phrase, hashmap)
+    if len(result) > 0:
+        sorted_pages = rank(result, graph)
+        max_i = 25
         i = 1
         for page, count in sorted_pages:
             if i > max_i:
@@ -56,8 +41,8 @@ def binary_search(graph, words, hashmap):
                 if choice.lower() == "x":
                     break
                 else:
-                    max_i += 50
-            paragraph = get_paragraph(hashmap[page], words, 1)
+                    max_i += 25
+            paragraph = get_paragraph(hashmap[page], phrase, 0)
             print(f"{i}: Page {page} - {count} occurrences\n{paragraph}\n")
             i += 1
     else:

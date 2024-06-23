@@ -1,6 +1,7 @@
 from parse_pdf import parse_pdf
 from graph import Graph
-from search_mode import words_search, phrase_search, binary_search
+from search_mode import words_search, phrase_search
+from trie import Trie
 
 
 def main():
@@ -8,6 +9,12 @@ def main():
     hashmap = parse_pdf()
     graph = Graph()
     graph = graph.deserialize('serialization/graph.pkl')
+    if not graph.data:
+        graph.build(hashmap)
+    trie = Trie()
+    trie = trie.deserialize('serialization/trie.pkl')
+    if not trie.root.children:
+        trie = Trie.build(hashmap)
     while True:
         print("""
             You can search word(s) or phrases in the text 
@@ -26,14 +33,13 @@ def main():
             words = value.split()
             if value[0] == "'" or value[0] == '"':
                 phrase = value[1:-1]
-                phrase_search(graph, phrase, hashmap)
-            elif len(words) > 1 and words[1] in ["AND", "OR", "NOT"]:
-                binary_search(graph, words, hashmap)
+                phrase_search(phrase, hashmap, graph)
             else:
-                words_search(graph, words, hashmap)
+                words_search(trie, words, hashmap, graph)
         else:
             print("Invalid choice")
     graph.serialize('serialization/graph.pkl')
+    trie.serialize('serialization/trie.pkl')
     print("------ END ------")
 
 
