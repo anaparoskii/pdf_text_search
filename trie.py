@@ -19,28 +19,37 @@ class Trie(object):
                 node.children[char] = TrieNode()
             node = node.children[char]
         node.is_end_of_word = True
-        node.pages.append(page)
+        if page not in node.pages:
+            node.pages.append(page)
 
     def search(self, word):
         node = self.root
         for char in word:
-            if char in node.children:
-                node = node.children[char]
-            else:
+            if char not in node.children:
                 return None
+            node = node.children[char]
         if node.is_end_of_word:
             return node.pages
         else:
             return None
 
-    @staticmethod
-    def build(hashmap):
-        trie = Trie()
+    def count(self, word, hashmap):
+        pages = self.search(word)
+        count = []
+        for page, text in hashmap.items():
+            if page in pages:
+                words = text.split()
+                for w in words:
+                    if word.lower() in w.lower():
+                        count.append(page)
+        return count
+
+    def build(self, hashmap):
         for page_number, text in hashmap.items():
-            words = text.split()  # Split text into words (simplified)
+            words = text.split()
             for word in words:
-                trie.insert(word.lower(), page_number)
-        return trie
+                self.insert(word.lower(), page_number)
+        return self
 
     def serialize(self, file_path):
         with open(file_path, 'wb') as file:

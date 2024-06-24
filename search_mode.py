@@ -3,14 +3,13 @@ from search_engine import get_paragraph, search_phrase, search_words, rank
 
 def words_search(trie, words, hashmap, graph):
     print("Search results:\n")
-    result = search_words(trie, words, graph)
-    print(f"Results found: {len(result)}")
+    result = search_words(trie, words, graph, hashmap)
     if len(result) > 0:
         if isinstance(result[0], tuple):
             sorted_pages = result
         else:
             sorted_pages = rank(result, graph)
-
+        print(f"Results found: {len(sorted_pages)}\n")
         max_i = 25
         i = 1
         for page, count in sorted_pages:

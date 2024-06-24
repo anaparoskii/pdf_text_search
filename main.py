@@ -1,6 +1,7 @@
 from parse_pdf import parse_pdf
 from graph import Graph
 from search_mode import words_search, phrase_search
+from advances_search import advanced_search
 from trie import Trie
 
 
@@ -10,11 +11,11 @@ def main():
     graph = Graph()
     graph = graph.deserialize('serialization/graph.pkl')
     if not graph.data:
-        graph.build(hashmap)
+        graph = graph.build(hashmap)
     trie = Trie()
     trie = trie.deserialize('serialization/trie.pkl')
     if not trie.root.children:
-        trie = Trie.build(hashmap)
+        trie = trie.build(hashmap)
     while True:
         print("""
             You can search word(s) or phrases in the text 
@@ -34,6 +35,8 @@ def main():
             if value[0] == "'" or value[0] == '"':
                 phrase = value[1:-1]
                 phrase_search(phrase, hashmap, graph)
+            elif "(" in value:
+                advanced_search(value, trie, hashmap, graph)
             else:
                 words_search(trie, words, hashmap, graph)
         else:

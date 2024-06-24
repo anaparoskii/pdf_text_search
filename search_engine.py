@@ -1,7 +1,7 @@
 from color import Color
 
 
-def search_words(trie, words, graph):
+def search_words(trie, words, graph, hashmap):
     if len(words) >= 3:
         condition = words[1]
         if condition in ["AND", "OR", "NOT"]:
@@ -10,21 +10,21 @@ def search_words(trie, words, graph):
         condition = None
 
     if condition == "AND":
-        return and_search(trie, words)
+        return and_search(trie, words, hashmap)
     elif condition == "OR":
-        return or_search(trie, words, graph)
+        return or_search(trie, words, graph, hashmap)
     elif condition == "NOT":
-        return not_search(trie, words)
+        return not_search(trie, words, hashmap)
     else:
-        return default_search(trie, words, graph)
+        return default_search(trie, words, graph, hashmap)
 
 
-def and_search(trie, words):
-    pages_with_first_word = trie.search(words[0].lower())
+def and_search(trie, words, hashmap):
+    pages_with_first_word = trie.count(words[0].lower(), hashmap)
     if not pages_with_first_word:
         return []
 
-    pages_with_second_word = trie.search(words[1].lower())
+    pages_with_second_word = trie.count(words[1].lower(), hashmap)
     if not pages_with_second_word:
         return pages_with_first_word
 
@@ -32,14 +32,17 @@ def and_search(trie, words):
     for page in pages_with_first_word:
         if page in pages_with_second_word:
             filtered_pages.append(page)
+    for page in pages_with_second_word:
+        if page in pages_with_first_word:
+            filtered_pages.append(page)
 
     return filtered_pages
 
 
-def or_search(trie, words, graph):
+def or_search(trie, words, graph, hashmap):
     all_pages = {}
     for word in words:
-        pages = trie.search(word.lower())
+        pages = trie.count(word.lower(), hashmap)
         if pages:
             all_pages[word] = pages
         else:
@@ -60,12 +63,12 @@ def or_search(trie, words, graph):
     return reference_rank(graph, medium_rank, 2)
 
 
-def not_search(trie, words):
-    pages_with_first_word = trie.search(words[0].lower())
+def not_search(trie, words, hashmap):
+    pages_with_first_word = trie.count(words[0].lower(), hashmap)
     if not pages_with_first_word:
         return []
 
-    pages_with_second_word = trie.search(words[1].lower())
+    pages_with_second_word = trie.count(words[1].lower(), hashmap)
     if not pages_with_second_word:
         return pages_with_first_word
 
@@ -77,10 +80,10 @@ def not_search(trie, words):
     return filtered_pages
 
 
-def default_search(trie, words, graph):
+def default_search(trie, words, graph, hashmap):
     all_pages = {}
     for word in words:
-        pages = trie.search(word.lower())
+        pages = trie.count(word.lower(), hashmap)
         if pages:
             all_pages[word] = pages
         else:
@@ -104,7 +107,6 @@ def search_phrase(phrase, hashmap):
         for line in lines:
             if phrase in line:
                 result.append(page)
-    print(result)
     return result
 
 
@@ -116,8 +118,8 @@ def rank(pages, graph):
 
 
 def reference_rank(graph, medium_rank, max_value):
-    references = graph.search_pages_references(list(medium_rank.keys()))
-    for reference in references:
+    references = graph.search_references(list(medium_rank.keys()))
+    for page_number, reference in references.items():
         if reference in list(medium_rank.keys()):
             medium_rank[reference] *= 1.5
     ranked_pages = sorted(medium_rank.items(), key=lambda item: item[1], reverse=True)
@@ -125,8 +127,8 @@ def reference_rank(graph, medium_rank, max_value):
     for page, frequency in ranked_pages:
         frequency *= max_value
         for page_number, page_references in references.items():
-            if page in page_references:
-                frequency /= 1.5
+            if page_references in list(medium_rank.keys()):
+                medium_rank[page_references] /= 1.5
         sorted_pages.append((page, frequency))
     return sorted_pages
 

@@ -15,12 +15,7 @@ class Graph(object):
     def has_node(self, node):
         return node in self.data
 
-    def search_page_references(self, node):
-        if self.has_node(node):
-            return self.data[node]
-        return None
-
-    def search_pages_references(self, pages):
+    def search_references(self, pages):
         references = {}
         for node in pages:
             if self.has_node(node):
