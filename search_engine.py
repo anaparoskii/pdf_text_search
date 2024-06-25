@@ -1,4 +1,4 @@
-from color import Color
+from rank import reference_rank
 
 
 def search_words(trie, words, graph, hashmap):
@@ -71,11 +71,13 @@ def not_search(trie, words, hashmap):
     pages_with_second_word = trie.count(words[1].lower(), hashmap)
     if not pages_with_second_word:
         return pages_with_first_word
-
+    print(pages_with_first_word)
+    print(pages_with_second_word)
     filtered_pages = []
     for page in pages_with_first_word:
         if page not in pages_with_second_word:
             filtered_pages.append(page)
+    print(filtered_pages)
 
     return filtered_pages
 
@@ -108,63 +110,3 @@ def search_phrase(phrase, hashmap):
             if phrase in line:
                 result.append(page)
     return result
-
-
-def rank(pages, graph):
-    ranked_pages = {}
-    for page in pages:
-        ranked_pages[page] = ranked_pages.get(page, 0) + 1
-    return reference_rank(graph, ranked_pages, 1)
-
-
-def reference_rank(graph, medium_rank, max_value):
-    references = graph.search_references(list(medium_rank.keys()))
-    for page_number, reference in references.items():
-        if reference in list(medium_rank.keys()):
-            medium_rank[reference] *= 1.5
-    ranked_pages = sorted(medium_rank.items(), key=lambda item: item[1], reverse=True)
-    sorted_pages = []
-    for page, frequency in ranked_pages:
-        frequency *= max_value
-        for page_number, page_references in references.items():
-            if page_references in list(medium_rank.keys()):
-                medium_rank[page_references] /= 1.5
-        sorted_pages.append((page, frequency))
-    return sorted_pages
-
-
-def get_paragraph(page, words, code):
-    if code == 1:
-        paragraph = page.split('\n')
-        paragraph_value = ''
-        search_range = len(paragraph) // 2
-        for word in words:
-            for i in range(search_range, len(paragraph)):
-                if word.lower() in paragraph[i].lower():
-                    if paragraph_value == '':
-                        paragraph_value = paragraph[i]
-                    elif paragraph_value == paragraph[i]:
-                        continue
-                    else:
-                        paragraph_value = paragraph_value + '\n' + paragraph[i]
-                        break
-        for word in words:
-            if paragraph_value != '':
-                paragraph_value = paragraph_value.lower().replace(word, f"{Color.PURPLE}{word}{Color.RESET}")
-        return paragraph_value
-    else:
-        paragraph = page.split('\n')
-        paragraph_value = ''
-        search_range = len(paragraph) // 2
-        for i in range(search_range, len(paragraph)):
-            if words in paragraph[i]:
-                if paragraph_value == '':
-                    paragraph_value = paragraph[i]
-                elif paragraph_value == paragraph[i]:
-                    continue
-                else:
-                    paragraph_value = paragraph_value + '\n' + paragraph[i]
-                    break
-        if paragraph_value != '':
-            paragraph_value = paragraph_value.replace(words, f"{Color.PURPLE}{words}{Color.RESET}")
-        return paragraph_value

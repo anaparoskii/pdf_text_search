@@ -1,6 +1,7 @@
 from stack import Stack
 import re
-from search_engine import rank, get_paragraph
+from rank import rank
+from paragraph import print_result
 
 
 def advanced_search(expression, trie, hashmap, graph):
@@ -32,20 +33,7 @@ def advanced_search(expression, trie, hashmap, graph):
     result = stack.pop()
     if len(result) > 0:
         sorted_pages = rank(result, graph)
-        print(f"Results found: {len(sorted_pages)}\n")
-        max_i = 25
-        i = 1
-        for page, count in sorted_pages:
-            if i > max_i:
-                choice = input("Press Enter to continue or X to terminate... ")
-                if choice.lower() == "x":
-                    break
-                else:
-                    max_i += 25
-            paragraph = get_paragraph(hashmap[page], expression_words, 1)
-            count = round(count)
-            print(f"{i}: Page {page} - {count} occurrences\n{paragraph}\n")
-            i += 1
+        print_result(sorted_pages, hashmap, expression_words, 1)
     else:
         print("No results found")
 
